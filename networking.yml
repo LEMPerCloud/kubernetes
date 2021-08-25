@@ -1,1 +1,33 @@
-
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: oauth
+  namespace: test
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    kubernetes.io/tls-acme: "true"
+    acme.cert-manager.io/http01-edit-in-place: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: / 
+spec:
+  rules:
+  - host: "oauth.apps.kubernetes.id" 
+    http:
+      paths:
+      - backend:
+          service:
+            name: apache
+            port:
+              number: 80
+        path: /login #define this
+        pathType: Prefix
+      - backend:
+         service:
+           name: nginx
+           port:
+             number: 80
+        path: /register
+        pathType: Prefix
+  tls:
+  - hosts:
+    - oauth.apps.kubernetes.id
+    secretName: oauth
